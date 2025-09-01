@@ -4,6 +4,7 @@ import fs from "fs";
 import yaml from "js-yaml";
 import { CommandMap } from "./command/CommandMap.js";
 import PluginManager from "./plugin/PluginManager.js";
+import { UserJoinEvent } from "./event/user/UserJoinEvent.js";
 export class Server {
     token;
     bot;
@@ -40,6 +41,17 @@ export class Server {
                 }
             }
             await this.commandMap.dispatch(sender, cmd, args);
+        });
+        this.bot.start(async (ctx) => {
+            const sender = {
+                getId: () => ctx.from.id,
+                getUsername: () => ctx.from.username,
+                getFirstName: () => ctx.from.first_name,
+                getLastName: () => ctx.from.last_name,
+                getServer: () => this,
+                sendMessage: (msg) => ctx.reply(msg)
+            };
+            await this.getPluginManager().callEvent(new UserJoinEvent(sender));
         });
     }
     initFiles() {

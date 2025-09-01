@@ -7,6 +7,7 @@ import type { CommandSender } from "./command/CommandSender.js";
 import { CommandMap } from "./command/CommandMap.js";
 import PluginManager from "./plugin/PluginManager.js";
 import { UserJoinEvent } from "./event/user/UserJoinEvent.js";
+import { TelegramAdapter } from "./TelegramAdapter.js";
 
 export class Server {
     private bot: Telegraf<Context>;
@@ -16,9 +17,24 @@ export class Server {
     private configPath = path.join(process.cwd(), 'config.yml');
 
     public config: any = {};
+    private telegram_adapters: TelegramAdapter;
 
     constructor (private token: string) {
         this.bot = new Telegraf(token);
+
+        this.telegram_adapters = new TelegramAdapter(this.bot, this);
+
+        this.bot.start(async ctx => {
+            const sender: CommandSender = {
+                getId : () => ctx.from.id,
+                getUsername: () => ctx.from.username,
+                getFirstName: () => ctx.from.first_name,
+                getLastName: () => ctx.from.last_name,
+                getServer: () => this,
+                sendMessage: (msg: string) => ctx.reply(msg)
+            };
+            await this.getPluginManager().callEvent(new UserJoinEvent(sender));
+        })
 
         this.bot.on('text', async ctx => {
             const text = ctx.message?.text;
@@ -48,18 +64,6 @@ export class Server {
 
             await this.commandMap.dispatch(sender, cmd, args);
         });
-
-        this.bot.start(async ctx => {
-            const sender: CommandSender = {
-                getId : () => ctx.from.id,
-                getUsername: () => ctx.from.username,
-                getFirstName: () => ctx.from.first_name,
-                getLastName: () => ctx.from.last_name,
-                getServer: () => this,
-                sendMessage: (msg: string) => ctx.reply(msg)
-            };
-            await this.getPluginManager().callEvent(new UserJoinEvent(sender));
-        })
     }
 
     private initFiles () {

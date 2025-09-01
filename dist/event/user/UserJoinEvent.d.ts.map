@@ -1,0 +1,1 @@
+{"version":3,"file":"UserJoinEvent.d.ts","sourceRoot":"","sources":["../../../src/event/user/UserJoinEvent.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,aAAa,EAAE,MAAM,gCAAgC,CAAC;AACpE,OAAO,EAAE,KAAK,EAAE,MAAM,aAAa,CAAC;AAEpC,qBAAa,aAAc,SAAQ,KAAK;IAC7B,MAAM,EAAE,aAAa,CAAC;gBAEhB,MAAM,EAAE,aAAa;CAIrC"}

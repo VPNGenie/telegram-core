@@ -3,6 +3,7 @@ import fs from "fs";
 import yaml from "js-yaml";
 class PluginManager {
     plugins = [];
+    listeners = {};
     getPlugins() {
         return this.plugins;
     }
@@ -47,6 +48,32 @@ class PluginManager {
             }
             catch (error) {
                 console.error(`[PluginManager] Ошибка при onDisable плагина ${plugin.getName()}`);
+            }
+        }
+    }
+    async callEvent(event) {
+        const eventName = event.constructor.name;
+        const handlers = this.listeners[eventName];
+        if (!handlers)
+            return;
+        for (const { plugin, method } of handlers) {
+            if (!plugin.isEnabled())
+                continue;
+            try {
+                await method(event);
+            }
+            catch (e) {
+                plugin.getLogger().error(`Ошибка в обработчике ${eventName}: ${e}`);
+            }
+        }
+    }
+    registerEvents(listener, plugin) {
+        for (const key of Object.getOwnPropertyNames(Object.getPrototypeOf(listener))) {
+            if (key.startsWith('on') && key.endsWith('Event')) {
+                const eventName = key.replace(/^on/, '');
+                if (!this.listeners[eventName])
+                    this.listeners[eventName] = [];
+                this.listeners[eventName].push({ plugin, method: listener[key].bind(listener) });
             }
         }
     }

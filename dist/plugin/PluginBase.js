@@ -18,6 +18,9 @@ export class PluginBase {
     getVersion() {
         return this.description.version;
     }
+    registerEvents(listener, server) {
+        server.getPluginManager().registerEvents(listener, this);
+    }
     setEnabled(boolean = true) {
         this.enabled = boolean;
     }

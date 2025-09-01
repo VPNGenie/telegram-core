@@ -13,6 +13,7 @@ export declare abstract class PluginBase {
     abstract onEnable(): void | Promise<void>;
     abstract onDisable(): void | Promise<void>;
     onCommand?(sender: CommandSender, command: string, args: string[]): Promise<boolean> | boolean;
+    registerEvents(listener: any, server: Server): void;
     setEnabled(boolean?: boolean): void;
     isEnabled(): boolean;
     isDisabled(): boolean;
