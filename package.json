@@ -1,8 +1,11 @@
 {
-  "name": "@genie/telegramcore",
+  "name": "@vpngenie/telegramcore",
   "version": "1.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
     "dist/**/*"
   ],
@@ -11,7 +14,8 @@
     "start": "ts-node src/index.ts",
     "build": "tsc",
     "lint": "eslint 'src/**/*.{ts,tsx}' --fix",
-    "format": "prettier --write 'src/**/*.{ts,tsx},json.yml,md'"
+    "format": "prettier --write 'src/**/*.{ts,tsx},json.yml,md'",
+    "release": "standard-version"
   },
   "keywords": [
     "telegram",
@@ -31,6 +35,7 @@
     "@typescript-eslint/parser": "^8.41.0",
     "eslint": "^9.34.0",
     "prettier": "^3.6.2",
+    "standard-version": "^9.5.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   },

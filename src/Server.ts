@@ -24,8 +24,11 @@ export class Server {
             if (!text.startsWith('/')) return;
 
             const sender: CommandSender = {
-                id: ctx.from.id,
-                username: ctx.from.username,
+                getId : () => ctx.from.id,
+                getUsername: () => ctx.from.username,
+                getFirstName: () => ctx.from.first_name,
+                getLastName: () => ctx.from.last_name,
+                getServer: () => this,
                 sendMessage: (msg: string) => ctx.reply(msg)
             };
 
@@ -34,7 +37,7 @@ export class Server {
             const [cmdName, ...args] = text.slice(1).split(/\s+/);
             for (const plugin of PluginManager.getPlugins()) {
                 if (plugin.onCommand) {
-                    const handled = await plugin.onCommand(sender, cmdName, args, this);
+                    const handled = await plugin.onCommand(sender, cmdName, args);
                     if (handled) break;
                 }
             }
@@ -64,10 +67,21 @@ export class Server {
         return this.commandMap;
     }
 
+    getPluginManager (): typeof PluginManager {
+        return PluginManager;
+    }
+
     async start () {
+        console.log('[Server] Starting...')
         this.initFiles();
         await PluginManager.loadPlugins(this);
         await this.bot.launch();
-        console.log('[Server]: Server started!');
+        console.log('[Server]: Server Started!');
+    }
+
+    async stop () {
+        console.log('[Server] Stopping...');
+        await PluginManager.disableAll();
+        process.exit(0);
     }
 }
