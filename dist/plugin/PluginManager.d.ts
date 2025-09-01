@@ -4,6 +4,7 @@ declare class PluginManager {
     private plugins;
     getPlugins(): PluginBase[];
     loadPlugins(server: Server): Promise<void>;
+    disableAll(): Promise<void>;
 }
 declare const _default: PluginManager;
 export default _default;

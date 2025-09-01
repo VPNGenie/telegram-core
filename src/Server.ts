@@ -6,6 +6,7 @@ import yaml from "js-yaml";
 import type { CommandSender } from "./command/CommandSender.js";
 import { CommandMap } from "./command/CommandMap.js";
 import PluginManager from "./plugin/PluginManager.js";
+import { UserJoinEvent } from "./event/user/UserJoinEvent.js";
 
 export class Server {
     private bot: Telegraf<Context>;
@@ -20,7 +21,7 @@ export class Server {
         this.bot = new Telegraf(token);
 
         this.bot.on('text', async ctx => {
-            const text = ctx.message.text;
+            const text = ctx.message?.text;
             if (!text.startsWith('/')) return;
 
             const sender: CommandSender = {
@@ -32,15 +33,32 @@ export class Server {
                 sendMessage: (msg: string) => ctx.reply(msg)
             };
 
-            await this.commandMap.dispatch(sender, text);
+            const [cmd = '', ...args] = text.slice(1).split(/\s+/);
 
-            const [cmdName, ...args] = text.slice(1).split(/\s+/);
             for (const plugin of PluginManager.getPlugins()) {
-                if (plugin.onCommand) {
-                    const handled = await plugin.onCommand(sender, cmdName, args);
-                    if (handled) break;
+                try {
+                    if (plugin.onCommand) {
+                        const handled = await plugin.onCommand(sender, cmd, args);
+                        if (handled) break;
+                    }
+                } catch (e) {
+                    plugin.getLogger().error(`Ошибка onCommand ${e}`)
                 }
             }
+
+            await this.commandMap.dispatch(sender, cmd, args);
+        });
+
+        this.bot.start(async ctx => {
+            const sender: CommandSender = {
+                getId : () => ctx.from.id,
+                getUsername: () => ctx.from.username,
+                getFirstName: () => ctx.from.first_name,
+                getLastName: () => ctx.from.last_name,
+                getServer: () => this,
+                sendMessage: (msg: string) => ctx.reply(msg)
+            };
+            await this.getPluginManager().callEvent(new UserJoinEvent(sender));
         })
     }
 

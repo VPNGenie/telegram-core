@@ -14,14 +14,40 @@ class PluginManager {
             const pluginYml = path.join('plugins', dir, 'plugin.yml');
             if (!fs.existsSync(pluginYml))
                 continue;
-            const data = yaml.load(fs.readFileSync(pluginYml, 'utf8'));
-            const mainPath = path.join('plugins', dir, 'src', data.main + '.js');
-            const mod = await import(path.resolve(mainPath));
-            const PluginClass = mod.default;
-            const plugin = new PluginClass(data.name);
-            await plugin.onEnable(server);
-            this.plugins.push(plugin);
-            console.log(`[PluginManager] Enabled ${data.name}`);
+            try {
+                const data = yaml.load(fs.readFileSync(pluginYml, 'utf8'));
+                const mainPath = path.join('plugins', dir, 'src', data.main);
+                const mod = await import(path.resolve(mainPath));
+                const PluginClass = mod.default;
+                const plugin = new PluginClass(data, server);
+                this.plugins.push(plugin);
+                try {
+                    await plugin.onEnable();
+                    plugin.setEnabled(true);
+                }
+                catch (error) {
+                    await plugin.setEnabled(false);
+                    try {
+                        await plugin.onDisable();
+                    }
+                    catch (e) {
+                        console.error(`[PluginManager] Ошибка onDisable ${plugin.getName()}:`, e);
+                    }
+                }
+            }
+            catch (e) {
+                console.error(`[PluginManager] Ошибка загрузки плагина ${dir}:`, e);
+            }
+        }
+    }
+    async disableAll() {
+        for (const plugin of this.plugins) {
+            try {
+                await plugin.onDisable();
+            }
+            catch (error) {
+                console.error(`[PluginManager] Ошибка при onDisable плагина ${plugin.getName()}`);
+            }
         }
     }
 }

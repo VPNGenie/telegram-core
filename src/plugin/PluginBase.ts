@@ -4,12 +4,13 @@ import Logger from "../utils/Logger.js";
 
 export abstract class PluginBase {
     private logger: Logger;
-    private server?: Server;
+    private server: Server;
     private enabled: boolean = false;
     private description: any;
 
-    constructor (server: Server, description: any) {
+    constructor (description: any, server: Server) {
         this.server = server;
+        this.description = description;
         this.logger = new Logger(description.name)
     }
 
@@ -17,8 +18,12 @@ export abstract class PluginBase {
         return this.logger;
     }
 
-    getDescription () {
-        return this.description;
+    getName () {
+        return this.description.name;
+    }
+
+    getVersion () {
+        return this.description.version;
     }
 
     abstract onEnable () : void | Promise<void>;
@@ -26,15 +31,12 @@ export abstract class PluginBase {
 
     onCommand?(sender: CommandSender, command: string, args: string[]): Promise<boolean> | boolean;
 
+    registerEvents(listener: any, server: Server) {
+        server.getPluginManager().registerEvents(listener, this);
+    }
+
     setEnabled (boolean = true) : void {
-        if (this.enabled !== boolean) {
-            this.enabled = boolean;
-            if (this.enabled === true) {
-                this.onEnable();
-            } else {
-                this.onDisable();
-            }
-        }
+        this.enabled = boolean;
     }
 
     isEnabled () : boolean {

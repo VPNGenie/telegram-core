@@ -1,5 +1,9 @@
+import { PluginsCommand } from "./defaults/PluginsCommand.js";
 export class CommandMap {
     commands = new Map();
+    constructor() {
+        this.registerDefaults();
+    }
     /**
      * @param {Command} command
      *
@@ -11,12 +15,14 @@ export class CommandMap {
             this.commands.set(alias.toLowerCase(), command);
         }
     }
-    async dispatch(sender, text) {
-        const [name, ...args] = text.slice(1).split(/\s+/);
+    async dispatch(sender, name, args) {
         const command = this.commands.get(name.toLowerCase());
         if (!command)
             return sender.sendMessage(`Неизвестная команда: ${name}`);
         await command.execute(sender, args);
+    }
+    registerDefaults() {
+        this.register(new PluginsCommand());
     }
 }
 //# sourceMappingURL=CommandMap.js.map

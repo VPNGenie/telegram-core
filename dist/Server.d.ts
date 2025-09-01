@@ -1,4 +1,5 @@
 import { CommandMap } from "./command/CommandMap.js";
+import PluginManager from "./plugin/PluginManager.js";
 export declare class Server {
     private token;
     private bot;
@@ -14,6 +15,8 @@ export declare class Server {
      * @memberOf Server
      */
     getCommandMap(): CommandMap;
+    getPluginManager(): typeof PluginManager;
     start(): Promise<void>;
+    stop(): Promise<void>;
 }
 //# sourceMappingURL=Server.d.ts.map

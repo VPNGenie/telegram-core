@@ -8,12 +8,14 @@ import type { PluginBase } from "./PluginBase.js";
 class PluginManager {
     private plugins: PluginBase[] = [];
 
+    private listeners: { [eventName: string]: { plugin: PluginBase; method: Function }[] } = {}
+
     getPlugins (): PluginBase[] {
         return this.plugins;
     }
 
     async loadPlugins (server: Server) {
-        const pluginDirs = fs.readdirSync(path.join(process.cwd(), 'plugins'), { withFileTypes: true });
+        const pluginDirs = fs.readdirSync(path.join(process.cwd(), 'plugins'), { withFileTypes: true })
             .filter(d => d.isDirectory())
             .map(d => d.name);
         
@@ -23,7 +25,7 @@ class PluginManager {
 
             try {
                 const data = yaml.load(fs.readFileSync(pluginYml, 'utf8')) as any;
-                const mainPath = path.join('plugins', dir, 'src', data.main + '.ts');
+                const mainPath = path.join('plugins', dir, 'src', data.main);
                 const mod = await import(path.resolve(mainPath));
                 const PluginClass = mod.default;
 
@@ -38,7 +40,7 @@ class PluginManager {
                     try {
                         await plugin.onDisable();
                     } catch (e) {
-                        console.error(`[PluginManager] Ошибка onDisable ${plugin.getDescription().name}:`, e);
+                        console.error(`[PluginManager] Ошибка onDisable ${plugin.getName()}:`, e);
                     }
                 }
             } catch (e) {
@@ -52,7 +54,32 @@ class PluginManager {
             try {
                 await plugin.onDisable();
             } catch (error) {
-                console.error(`[PluginManager] Ошибка при onDisable плагина ${plugin.getDescription().name}`);
+                console.error(`[PluginManager] Ошибка при onDisable плагина ${plugin.getName()}`);
+            }
+        }
+    }
+
+    async callEvent (event: any) {
+        const eventName = event.constructor.name;
+        const handlers = this.listeners[eventName];
+        if (!handlers) return;
+
+        for (const { plugin, method } of handlers) {
+            if (!plugin.isEnabled()) continue;
+            try {
+                await method(event);
+            } catch (e) {
+                plugin.getLogger().error(`Ошибка в обработчике ${eventName}: ${e}`)
+            }
+        }
+    }
+
+    registerEvents (listener: any, plugin: PluginBase) {
+        for (const key of Object.getOwnPropertyNames(Object.getPrototypeOf(listener))) {
+            if (key.startsWith('on') && key.endsWith('Event')) {
+                const eventName = key.replace(/^on/, '');
+                if (!this.listeners[eventName]) this.listeners[eventName] = [];
+                this.listeners[eventName].push({ plugin, method: listener[key].bind(listener) });
             }
         }
     }

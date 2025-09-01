@@ -9,7 +9,7 @@ export class PluginsCommand extends Command {
     async execute(sender: CommandSender, args: string[]): Promise<void> {
          const plugins = sender.getServer().getPluginManager().getPlugins();
          const list = plugins
-            .map(p => `${p.getDescription().name} [${p.isEnabled() ? 'Enabled' : 'Disabled'}]`)
+            .map(p => `${p.getName()} [${p.isEnabled() ? 'Enabled' : 'Disabled'}]`)
             .join(', ');
 
         return sender.sendMessage(`Плагины (${plugins.length}): ${list}`)

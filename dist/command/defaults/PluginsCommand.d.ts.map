@@ -1,0 +1,1 @@
+{"version":3,"file":"PluginsCommand.d.ts","sourceRoot":"","sources":["../../../src/command/defaults/PluginsCommand.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,MAAM,eAAe,CAAC;AACxC,OAAO,KAAK,EAAE,aAAa,EAAE,MAAM,qBAAqB,CAAC;AAEzD,qBAAa,cAAe,SAAQ,OAAO;;IAKjC,OAAO,CAAC,MAAM,EAAE,aAAa,EAAE,IAAI,EAAE,MAAM,EAAE,GAAG,OAAO,CAAC,IAAI,CAAC;CAQtE"}
