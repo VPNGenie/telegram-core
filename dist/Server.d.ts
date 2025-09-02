@@ -7,6 +7,7 @@ export declare class Server {
     private pluginsPath;
     private configPath;
     config: any;
+    private telegram_adapters;
     constructor(token: string);
     private initFiles;
     /**

@@ -37,12 +37,7 @@ class PluginManager {
                 try {
                     await plugin.onEnable();
                     plugin.setEnabled(true);
-                    const ev = new PluginEnableEvent(plugin)
-                    await server.getPluginManager().callEvent(ev);
-
-                    if (!ev.isCancelled()) {
-                        console.log('Плагин включен');
-                    }
+                    await server.getPluginManager().callEvent(new PluginEnableEvent(plugin));
                 } catch (error) {
                     await plugin.setEnabled(false);
                     await server.getPluginManager().callEvent(new PluginDisableEvent(plugin));

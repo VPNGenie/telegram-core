@@ -1,8 +1,9 @@
 import type { Server } from "../Server.js";
 import type { CommandSender } from "../command/CommandSender.js";
 import Logger from "../utils/Logger.js";
+import type { Plugin } from "./Plugin.js";
 
-export abstract class PluginBase {
+export abstract class PluginBase implements Plugin {
     private logger: Logger;
     private server: Server;
     private enabled: boolean = false;
@@ -14,12 +15,8 @@ export abstract class PluginBase {
         this.logger = new Logger(description.name)
     }
 
-    getLogger () : Logger {
-        return this.logger;
-    }
-
-    getName () {
-        return this.description.name;
+    getDescription(): string {
+        return this.description;
     }
 
     getVersion () {
@@ -49,5 +46,13 @@ export abstract class PluginBase {
 
     getServer () : Server {
         return this.server;
+    }
+
+    getLogger () : Logger {
+        return this.logger;
+    }
+
+    getName () {
+        return this.description.name;
     }
 }

@@ -1,10 +1,10 @@
 export class Event {
     cancelled = false;
     isCancelled() {
-        return this.cancelled;
+        return this.cancelled === true;
     }
-    setCancelled(boolean) {
-        this.cancelled = boolean;
+    setCancelled(value) {
+        this.cancelled = value;
     }
 }
 //# sourceMappingURL=Event.js.map

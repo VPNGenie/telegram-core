@@ -5,6 +5,7 @@ import yaml from "js-yaml";
 import { CommandMap } from "./command/CommandMap.js";
 import PluginManager from "./plugin/PluginManager.js";
 import { UserJoinEvent } from "./event/user/UserJoinEvent.js";
+import { TelegramAdapter } from "./TelegramAdapter.js";
 export class Server {
     token;
     bot;
@@ -12,9 +13,22 @@ export class Server {
     pluginsPath = path.join(process.cwd(), 'plugins');
     configPath = path.join(process.cwd(), 'config.yml');
     config = {};
+    telegram_adapters;
     constructor(token) {
         this.token = token;
         this.bot = new Telegraf(token);
+        this.telegram_adapters = new TelegramAdapter(this.bot, this);
+        this.bot.start(async (ctx) => {
+            const sender = {
+                getId: () => ctx.from.id,
+                getUsername: () => ctx.from.username,
+                getFirstName: () => ctx.from.first_name,
+                getLastName: () => ctx.from.last_name,
+                getServer: () => this,
+                sendMessage: (msg) => ctx.reply(msg)
+            };
+            await this.getPluginManager().callEvent(new UserJoinEvent(sender));
+        });
         this.bot.on('text', async (ctx) => {
             const text = ctx.message?.text;
             if (!text.startsWith('/'))
@@ -41,17 +55,6 @@ export class Server {
                 }
             }
             await this.commandMap.dispatch(sender, cmd, args);
-        });
-        this.bot.start(async (ctx) => {
-            const sender = {
-                getId: () => ctx.from.id,
-                getUsername: () => ctx.from.username,
-                getFirstName: () => ctx.from.first_name,
-                getLastName: () => ctx.from.last_name,
-                getServer: () => this,
-                sendMessage: (msg) => ctx.reply(msg)
-            };
-            await this.getPluginManager().callEvent(new UserJoinEvent(sender));
         });
     }
     initFiles() {

@@ -1,6 +1,8 @@
 import path from "path";
 import fs from "fs";
 import yaml from "js-yaml";
+import { PluginEnableEvent } from "../event/plugin/PluginEnableEvent.js";
+import { PluginDisableEvent } from "../event/plugin/PluginDIsableEvent.js";
 class PluginManager {
     plugins = [];
     listeners = {};
@@ -25,9 +27,11 @@ class PluginManager {
                 try {
                     await plugin.onEnable();
                     plugin.setEnabled(true);
+                    await server.getPluginManager().callEvent(new PluginEnableEvent(plugin));
                 }
                 catch (error) {
                     await plugin.setEnabled(false);
+                    await server.getPluginManager().callEvent(new PluginDisableEvent(plugin));
                     try {
                         await plugin.onDisable();
                     }

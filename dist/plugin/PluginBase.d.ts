@@ -1,14 +1,14 @@
 import type { Server } from "../Server.js";
 import type { CommandSender } from "../command/CommandSender.js";
 import Logger from "../utils/Logger.js";
-export declare abstract class PluginBase {
+import type { Plugin } from "./Plugin.js";
+export declare abstract class PluginBase implements Plugin {
     private logger;
     private server;
     private enabled;
     private description;
     constructor(description: any, server: Server);
-    getLogger(): Logger;
-    getName(): any;
+    getDescription(): string;
     getVersion(): any;
     abstract onEnable(): void | Promise<void>;
     abstract onDisable(): void | Promise<void>;
@@ -18,5 +18,7 @@ export declare abstract class PluginBase {
     isEnabled(): boolean;
     isDisabled(): boolean;
     getServer(): Server;
+    getLogger(): Logger;
+    getName(): any;
 }
 //# sourceMappingURL=PluginBase.d.ts.map

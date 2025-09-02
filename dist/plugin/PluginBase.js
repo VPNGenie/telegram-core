@@ -9,11 +9,8 @@ export class PluginBase {
         this.description = description;
         this.logger = new Logger(description.name);
     }
-    getLogger() {
-        return this.logger;
-    }
-    getName() {
-        return this.description.name;
+    getDescription() {
+        return this.description;
     }
     getVersion() {
         return this.description.version;
@@ -32,6 +29,12 @@ export class PluginBase {
     }
     getServer() {
         return this.server;
+    }
+    getLogger() {
+        return this.logger;
+    }
+    getName() {
+        return this.description.name;
     }
 }
 //# sourceMappingURL=PluginBase.js.map
