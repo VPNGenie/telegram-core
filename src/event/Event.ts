@@ -2,10 +2,10 @@ export abstract class Event {
     private cancelled: boolean = false;
 
     isCancelled () : boolean {
-        return this.cancelled;
+        return this.cancelled === true;
     }
 
-    setCancelled (boolean: boolean) {
-        this.cancelled = boolean;
+    setCancelled (value: boolean) {
+        this.cancelled = value;
     }
 }

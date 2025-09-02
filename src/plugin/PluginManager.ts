@@ -4,6 +4,8 @@ import yaml from "js-yaml";
 
 import type { Server } from "../Server.js";
 import type { PluginBase } from "./PluginBase.js";
+import { PluginEnableEvent } from "../event/plugin/PluginEnableEvent.js";
+import { PluginDisableEvent } from "../event/plugin/PluginDIsableEvent.js";
 
 class PluginManager {
     private plugins: PluginBase[] = [];
@@ -35,8 +37,15 @@ class PluginManager {
                 try {
                     await plugin.onEnable();
                     plugin.setEnabled(true);
+                    const ev = new PluginEnableEvent(plugin)
+                    await server.getPluginManager().callEvent(ev);
+
+                    if (!ev.isCancelled()) {
+                        console.log('Плагин включен');
+                    }
                 } catch (error) {
                     await plugin.setEnabled(false);
+                    await server.getPluginManager().callEvent(new PluginDisableEvent(plugin));
                     try {
                         await plugin.onDisable();
                     } catch (e) {
